@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helper.cs" />
     <Compile Include="IniFiles.cs" />
     <Compile Include="MyLog.cs" />
     <Compile Include="Program.cs" />

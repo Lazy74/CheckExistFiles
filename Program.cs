@@ -5,7 +5,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using RebootRouter_v2;
 
 namespace CheckExistFiles
 {
@@ -13,11 +12,18 @@ namespace CheckExistFiles
     {
         static void Main(string[] args)
         {
+            
             List<string> paths = new List<string>();    // Массив путей, где будут проверяться файлы
             List<string> masks = new List<string>();    // Массив масок по которым искать файлы
             int lifetime;       // Время существования файла после которого считать что файл старый!
             string messageForTelegram = "";
             List<string> API_KEYs = new List<string>(); // Массив масок ключей для бота @ALARMER_BOT в телеграме 
+
+            #region Чтение ini файла
+
+
+
+            #endregion
 
             #region Тестовые переменные
 
@@ -40,7 +46,7 @@ namespace CheckExistFiles
                         TimeSpan ts = DateTime.Now - timeCreateFile;
                         if (ts.TotalSeconds > lifetime)
                         {
-                            messageForTelegram += "Файл: \"" + dir + "\" существует " + Function.TimeInText(ts) + "\n";
+                            messageForTelegram += "Файл: \"" + dir + "\" существует " + Helper.TimeInText(ts) + "\n";
                         }
 
                     }
@@ -52,33 +58,6 @@ namespace CheckExistFiles
                 MyLog.Telega(messageForTelegram, API_KEY);
             }
 
-        }
-    }
-
-    class Function
-    {
-        public static string TimeInText(TimeSpan timeSpan)
-        {
-            string result = "";
-
-            if (timeSpan.Days > 0)
-            {
-                result += timeSpan.Days + "д ";
-            }
-            if (timeSpan.Hours > 0)
-            {
-                result += timeSpan.Hours + "ч ";
-            }
-            if (timeSpan.Minutes > 0)
-            {
-                result += timeSpan.Minutes + "м ";
-            }
-            if (timeSpan.Seconds > 0)
-            {
-                result += timeSpan.Seconds + "с ";
-            }
-
-            return result;
         }
     }
 }

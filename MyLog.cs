@@ -3,7 +3,7 @@ using System.IO;
 using System.Net;
 using System.Windows.Forms;
 
-namespace RebootRouter_v2
+namespace CheckExistFiles
 {
     class MyLog
     {
