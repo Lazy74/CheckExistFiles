@@ -7,9 +7,11 @@ namespace CheckExistFiles
 {
     class MyLog
     {
-        static string logName = "Log.txt";
+        // TODO Закоментированны все "MessageBox.Show"
+
+        static string logName = "Log_"+ DateTime.Now.ToString("dd_MM_yyyy") + ".txt";
         //static string path = Directory.GetCurrentDirectory() + @"\Log";
-        static string path = @"C:\Log\RebootRouter\";
+        static string path = @"C:\Log\CheckExistFiles\";
         static readonly string PathCombine = Path.Combine(path, logName);
 
         /// <summary>
@@ -31,9 +33,9 @@ namespace CheckExistFiles
             }
             catch (Exception e)
             {
-                MessageBox.Show(
-                    "Не удалось сделать лог запись! Приложение будет закрыто\n" +
-                    e.Message);
+                //MessageBox.Show(
+                //    "Не удалось сделать лог запись! Приложение будет закрыто\n" +
+                //    e.Message);
 
                 System.Threading.Thread.CurrentThread.Abort();
             }
@@ -58,9 +60,9 @@ namespace CheckExistFiles
             }
             catch (Exception e)
             {
-                MessageBox.Show(
-                    "Не удалось сделать лог запись! Приложение будет закрыто\n" +
-                    e.Message);
+                //MessageBox.Show(
+                //    "Не удалось сделать лог запись! Приложение будет закрыто\n" +
+                //    e.Message);
 
                 System.Threading.Thread.CurrentThread.Abort();
             }
