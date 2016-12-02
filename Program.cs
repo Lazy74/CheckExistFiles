@@ -13,7 +13,8 @@ namespace CheckExistFiles
     {
         static void Main(string[] args)
         {
-            
+            RegistryFiles registryFiles = new RegistryFiles();
+
             List<string> paths = new List<string>();    // Массив путей, где будут проверяться файлы
             List<string> masks = new List<string>();    // Массив масок по которым искать файлы
             int lifetime = 0;                           // Время существования файла после которого считать что файл старый! Время в СЕКУНДАХ
@@ -39,7 +40,7 @@ namespace CheckExistFiles
                 }
                 return;
             }
-            
+
             masks = Helper.ReadIniMasksList();
             if (masks == null)
             {
@@ -84,15 +85,31 @@ namespace CheckExistFiles
                         TimeSpan ts = DateTime.Now - timeCreateFile;
                         if (ts.TotalSeconds > lifetime)
                         {
-                            messageForTelegram += "***\nФайл: \"" + dir + "\" существует " + Helper.TimeInText(ts) + "\n\n";
+                            if (!registryFiles.Exists(dir))
+                            {
+                                messageForTelegram += "***\nФайл: \"" + dir + "\" существует " + Helper.TimeInText(ts) + "\n\n";
+                            }
+                            registryFiles.Add(dir);
                         }
                     }
                 }
             }
 
+            registryFiles.Save();
+
             foreach (string API_KEY in API_KEYs)
             {
                 MyLog.Telega(messageForTelegram, API_KEY);
+            }
+
+            messageForTelegram = registryFiles.GetListDeletFiles();
+
+            if (messageForTelegram != null)
+            {
+                foreach (string API_KEY in API_KEYs)
+                {
+                    MyLog.Telega(messageForTelegram, API_KEY);
+                }
             }
 
         }
