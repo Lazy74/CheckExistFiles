@@ -9,7 +9,7 @@ namespace CheckExistFiles
     {
         // TODO Закоментированны все "MessageBox.Show"
 
-        static string logName = "Log_"+ DateTime.Now.ToString("dd_MM_yyyy") + ".txt";
+        static string logName = "Log_"+ DateTime.Now.ToString("yyyy_MM_dd") + ".txt";
         //static string path = Directory.GetCurrentDirectory() + @"\Log";
         static string path = @"C:\Log\CheckExistFiles\";
         static readonly string PathCombine = Path.Combine(path, logName);

@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows.Forms.VisualStyles;
 
 namespace CheckExistFiles
 {
@@ -144,8 +146,8 @@ namespace CheckExistFiles
             if (result.Length == 0)
             {
                 MyLog.Error("Ошибка чтения файла настроек! Не найден ключ \"Message\". Принято значение по умолчанию");
-                _iniFile.Write("Message", "message", "*");
-                result = "*";
+                _iniFile.Write("Message", "message", "TestMessage");
+                result = "TestMessage";
             }
 
             return result + "\n";
@@ -167,6 +169,68 @@ namespace CheckExistFiles
                 _iniFile.Write("Time", "lifetime", "0");
                 return 0;
             }
+        }
+
+        /// <summary>
+        /// Считать список масок файлов, которые нужно исключить из проверки
+        /// </summary>
+        /// <returns></returns>
+        public static List<string> ReadExceptionsMasksList()
+        {
+            int i = 1;
+            List<string> exMaskList = new List<string>();
+
+            bool flag = true;
+
+            string readExMask = _iniFile.ReadINI("ExMasks", i.ToString());
+            while (readExMask.Length > 0)
+            {
+                flag = false;
+
+                exMaskList.Add(readExMask
+                            .Replace("^", "\\^")
+                            .Replace("$", "\\$")
+                            .Replace("+", "\\+")
+                            .Replace(".", "\\.")
+                            .Replace("*",".*")
+                            .Replace("?","."));
+                i++;
+                readExMask = _iniFile.ReadINI("ExMasks", i.ToString());
+            }
+
+            if (flag)
+            {
+                // TODO Сделать возможность запуска программы без списка масок с исключениями
+                MyLog.Error("Ошибка чтения файла настроек! Не найдена секция \"ExMasks\" или нет ниодного ключа. Принято значение по умолчанию");
+                _iniFile.Write("ExMasks", i.ToString(), "Test*.txt");
+                return null;
+            }
+
+            return exMaskList;
+        }
+
+        /// <summary>
+        /// Проверить исключен ли этот файл из проверки
+        /// </summary>
+        /// <param name="dir">Путь к файлу</param>
+        /// <param name="exceptionsMasks">Список масок для исключения</param>
+        /// <returns></returns>
+        public static bool CheckedExceptionsMask(string dir, List<string> exceptionsMasks)
+        {
+            //string s = dir
+
+            Regex regex;
+
+            foreach (string exceptionsMask in exceptionsMasks)
+            {
+                regex = new Regex(exceptionsMask);
+
+                if (regex.IsMatch(dir))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

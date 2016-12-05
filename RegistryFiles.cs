@@ -15,7 +15,7 @@ namespace CheckExistFiles
         static List<string> registryFilesList = new List<string>();
 
         // TODO Придумать куда засунуть этот ненужный файл
-        string path = Path.GetTempPath() + "RegistryFilesDB.txt";
+        string path = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory) + "RegistryFilesDB.txt";
 
         public RegistryFiles()
         {
@@ -25,7 +25,8 @@ namespace CheckExistFiles
             }
             catch (Exception)
             {
-                File.Create(path);
+                File.AppendAllText(path,"");
+                //File.Create(path);
                 return;
             }
         }
@@ -44,32 +45,38 @@ namespace CheckExistFiles
 
         public bool Exists(string dir)
         {
-            return OldRegistryFilesList.Exists(s => s == dir);
+            if (OldRegistryFilesList.Count == 0)
+            {
+                return OldRegistryFilesList.Exists(s => s == dir);
+            }
+            return true;
         }
 
-        public string GetListDeletFiles()
+        public bool GetListDeletFiles()
         {
-            if (registryFilesList.Count == 0 && OldRegistryFilesList.Count !=0)
-            {
-                return "Все файлы были удалены";
-            }
+            return registryFilesList.Count == 0 && OldRegistryFilesList.Count != 0;
 
-            string result = "Список файлов которые были успешно удалены:\n";
+            //if (registryFilesList.Count == 0 && OldRegistryFilesList.Count !=0)
+            //{
+            //    return "Все файлы были удалены";
+            //}
 
-            foreach (string oldDir in OldRegistryFilesList)
-            {
-                if (!registryFilesList.Exists(s => s == oldDir))
-                {
-                    result += "\n"+oldDir;
-                }
-            }
+            //string result = "Список файлов которые были успешно удалены:\n";
 
-            if (result == "Список файлов которые были успешно удалены:\n")
-            {
-                result = null;
-            }
+            //foreach (string oldDir in OldRegistryFilesList)
+            //{
+            //    if (!registryFilesList.Exists(s => s == oldDir))
+            //    {
+            //        result += "\n"+oldDir;
+            //    }
+            //}
 
-            return result;
+            //if (result == "Список файлов которые были успешно удалены:\n")
+            //{
+            //    result = null;
+            //}
+
+            //return result;
         }
     }
 }

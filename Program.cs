@@ -16,10 +16,13 @@ namespace CheckExistFiles
             RegistryFiles registryFiles = new RegistryFiles();
 
             List<string> paths = new List<string>();    // Массив путей, где будут проверяться файлы
+            List<string> exceptionsMasks = new List<string>();    // Массив масок по которым искать файлы
             List<string> masks = new List<string>();    // Массив масок по которым искать файлы
             int lifetime = 0;                           // Время существования файла после которого считать что файл старый! Время в СЕКУНДАХ
-            string messageForTelegram = "";             // Префикс к сообщению в телеграме
+            string messageForTelegram = "";             // Сообщение в телеграм
+            string prefixMessage = "";                  // Префикс к сообщению в телеграме
             List<string> API_KEYs = new List<string>(); // Массив масок ключей для бота @ALARMER_BOT в телеграме 
+
 
             #region Чтение ini файла
 
@@ -61,6 +64,10 @@ namespace CheckExistFiles
                 lifetime = 300;
             }
 
+            exceptionsMasks = Helper.ReadExceptionsMasksList();
+
+            prefixMessage = Helper.ReadIniMessageForTelegram();
+
             #endregion
 
             #region Тестовые переменные
@@ -73,45 +80,65 @@ namespace CheckExistFiles
 
             #endregion
 
+            bool flag = false;      // Флаг о том что все плохо
+
             foreach (string path in paths)
             {
                 foreach (string mask in masks)
                 {
                     List<string> dirs = Directory.GetFiles(path, mask).ToList();
+                    //
+                    //List<string> exceptionsDirs = Directory.GetFiles(path, mask).ToList();
 
                     foreach (string dir in dirs)
                     {
-                        DateTime timeCreateFile = File.GetCreationTime(dir);
-                        TimeSpan ts = DateTime.Now - timeCreateFile;
-                        if (ts.TotalSeconds > lifetime)
+                        if (!Helper.CheckedExceptionsMask(dir,exceptionsMasks))
                         {
-                            if (!registryFiles.Exists(dir))
+                            DateTime timeCreateFile = File.GetCreationTime(dir);
+                            TimeSpan ts = DateTime.Now - timeCreateFile;
+                            if (ts.TotalSeconds > lifetime)
                             {
-                                messageForTelegram += "***\nФайл: \"" + dir + "\" существует " + Helper.TimeInText(ts) + "\n\n";
+                                if (!registryFiles.Exists(dir))
+                                {
+                                    //messageForTelegram += "***\nФайл: \"" + dir + "\" существует " + Helper.TimeInText(ts) + "\n\n";
+                                    flag = true; // Все плохо!!! будем отправлять сообщение
+                                }
+                                registryFiles.Add(dir);
                             }
-                            registryFiles.Add(dir);
                         }
                     }
                 }
             }
 
+            // Ok ✅♻️
+            // Bad ⛔️❗️
+
             registryFiles.Save();
 
-            foreach (string API_KEY in API_KEYs)
-            {
-                MyLog.Telega(messageForTelegram, API_KEY);
-            }
+            //messageForTelegram = "❗️" + prefixMessage+ "❗️" + "\n" + messageForTelegram;
 
-            messageForTelegram = registryFiles.GetListDeletFiles();
-
-            if (messageForTelegram != null)
+            if (flag)
             {
+                messageForTelegram = "❗️" + prefixMessage +
+                    "\nНе забирает файлы⛔️";
+
                 foreach (string API_KEY in API_KEYs)
                 {
                     MyLog.Telega(messageForTelegram, API_KEY);
                 }
             }
 
+            //messageForTelegram = registryFiles.GetListDeletFiles();
+
+            if (registryFiles.GetListDeletFiles())
+            {
+                messageForTelegram = "♻️" + prefixMessage +
+                    "\n✅ В рабочем состоянии";
+                foreach (string API_KEY in API_KEYs)
+                {
+                    MyLog.Telega(messageForTelegram, API_KEY);
+                }
+            }
         }
     }
 }
